@@ -28,5 +28,11 @@ dependencies = [
     "ipykernel",
     "ipython",
     "augraphy>=8.2.6",
-    "nbconvert==7.12.0"
+    "nbconvert==7.12.0",
+    # Experiment Tracking
+    "wandb",
+    "python-dotenv",
+    "seaborn",
+    # System Monitoring
+    "psutil"
 ]
