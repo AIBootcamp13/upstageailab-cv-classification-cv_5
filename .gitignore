@@ -17,6 +17,9 @@ logs/*
 wandb/
 *.wandb
 
+# Obsidian notes
+.obsidian/
+
 ### <<< Custom gitignore <<<
 
 # Created by https://www.toptal.com/developers/gitignore/api/linux,python,venv,jupyternotebooks,macos,windows
