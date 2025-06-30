@@ -302,3 +302,7 @@ $RECYCLE.BIN/
 *.lnk
 
 # End of https://www.toptal.com/developers/gitignore/api/linux,python,venv,jupyternotebooks,macos,windows
+# 대용량 모델 파일들 (WandB Artifacts로 관리)
+models/*.pth
+models/*.pt
+models/*.onnx
