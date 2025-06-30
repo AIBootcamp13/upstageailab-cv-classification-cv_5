@@ -6,6 +6,13 @@ codes/practice/*
 # 2. data/submissions 디렉토리: 모든 .csv 파일 무시
 data/submissions/*.csv
 
+# 3. 대회 데이터셋 - 이미지만 용량 이슈로 제외
+data/train/
+data/test/
+
+# 4. 임시 폴더 - 개발 중 생성되는 임시 파일들
+temp/
+
 !init.txt
 !__init__.py
 

@@ -34,5 +34,5 @@ dependencies = [
     "python-dotenv",
     "seaborn",
     # System Monitoring
-    "psutil"
+    "psutil",
 ]

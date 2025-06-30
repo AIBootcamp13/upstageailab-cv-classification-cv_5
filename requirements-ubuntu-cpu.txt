@@ -1,10 +1,8 @@
-# Default requirements (macOS compatible for development)
-# For other platforms, use platform-specific requirements files
-
-# PyTorch for macOS (CPU/MPS support) - Compatible versions
-torch==2.7.1
-torchvision==0.22.1
-torchaudio==2.7.1
+# PyTorch for Ubuntu CPU-only - Compatible versions
+--index-url https://download.pytorch.org/whl/cpu
+torch==2.5.0
+torchvision==0.20.0
+torchaudio==2.5.0
 
 # Core ML libraries
 timm==1.0.16
@@ -47,8 +45,3 @@ scipy==1.16.0
 # Additional dependencies
 requests==2.32.4
 setuptools==80.9.0
-
-# Platform-specific installations:
-# macOS: use this file or requirements-macos.txt
-# Ubuntu GPU: use requirements-ubuntu-gpu.txt
-# Ubuntu CPU: use requirements-ubuntu-cpu.txt
