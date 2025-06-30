@@ -5,11 +5,22 @@ WandB utility functions for run management and logging
 import wandb
 import os
 import re
-from typing import List, Dict, Optional, Any
+from typing import List, Dict, Optional, Any, TYPE_CHECKING
 from datetime import datetime
 from pathlib import Path
 
-def init_wandb(config: Dict[str, Any], run_name: Optional[str] = None) -> wandb.Run:
+# Handle wandb.Run type hint compatibility
+if TYPE_CHECKING:
+    try:
+        from wandb.sdk.wandb_run import Run
+    except ImportError:
+        # Fallback for older wandb versions
+        Run = Any
+else:
+    # Runtime - use Any to avoid import issues
+    Run = Any
+
+def init_wandb(config: Dict[str, Any], run_name: Optional[str] = None) -> "Run":
     """
     Initialize WandB run with configuration
     
@@ -36,7 +47,7 @@ def init_wandb(config: Dict[str, Any], run_name: Optional[str] = None) -> wandb.
     
     return run
 
-def get_runs(project_name: str, entity: str = None, limit: int = 100) -> List[wandb.Run]:
+def get_runs(project_name: str, entity: str = None, limit: int = 100) -> List["Run"]:
     """
     Get all runs from a WandB project
     
@@ -63,7 +74,7 @@ def get_runs(project_name: str, entity: str = None, limit: int = 100) -> List[wa
         print(f"Error fetching runs: {e}")
         return []
 
-def get_latest_runs(project_name: str, entity: str = None, limit: int = 10) -> List[wandb.Run]:
+def get_latest_runs(project_name: str, entity: str = None, limit: int = 10) -> List["Run"]:
     """
     Get latest runs from a WandB project
     
@@ -141,14 +152,14 @@ def log_model_info(model, input_shape: tuple = None):
         trainable_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
         
         model_info = {
-            "model_name": model.__class__.__name__,
+            "model_class_name": model.__class__.__name__,  # model_name → model_class_name으로 변경
             "total_parameters": total_params,
             "trainable_parameters": trainable_params,
             "non_trainable_parameters": total_params - trainable_params,
         }
         
-        # Log model info
-        wandb.config.update(model_info)
+        # Log model info with allow_val_change
+        wandb.config.update(model_info, allow_val_change=True)  # allow_val_change 추가
         
         # Log model summary if possible
         if input_shape:
@@ -233,32 +244,82 @@ def create_run_name(model_name: str, experiment_type: str = None) -> str:
 
 def log_confusion_matrix(y_true, y_pred, class_names: List[str] = None):
     """
-    Log confusion matrix to WandB
+    Log confusion matrix to WandB with comprehensive error handling
     
     Args:
-        y_true: True labels
-        y_pred: Predicted labels  
+        y_true: True labels (numpy array, list, or torch tensor)
+        y_pred: Predicted labels (numpy array, list, or torch tensor)
         class_names: Optional class names
     """
     try:
+        # Import required libraries
+        import numpy as np
         from sklearn.metrics import confusion_matrix
         import matplotlib.pyplot as plt
         import seaborn as sns
         
+        # Convert inputs to numpy arrays for consistent handling
+        if hasattr(y_true, 'cpu'):  # PyTorch tensor
+            y_true = y_true.cpu().numpy()
+        elif hasattr(y_true, 'numpy'):  # Some other tensor type
+            y_true = y_true.numpy()
+        else:
+            y_true = np.array(y_true)
+            
+        if hasattr(y_pred, 'cpu'):  # PyTorch tensor
+            y_pred = y_pred.cpu().numpy()
+        elif hasattr(y_pred, 'numpy'):  # Some other tensor type
+            y_pred = y_pred.numpy()
+        else:
+            y_pred = np.array(y_pred)
+        
+        # Comprehensive validation
+        if y_true is None or y_pred is None:
+            return  # Silent return for None values
+            
+        if not hasattr(y_true, '__len__') or not hasattr(y_pred, '__len__'):
+            return  # Silent return for non-array-like objects
+            
+        if len(y_true) == 0 or len(y_pred) == 0:
+            return  # Silent return for empty arrays
+            
+        if len(y_true) != len(y_pred):
+            return  # Silent return for length mismatch
+        
+        # Check for invalid values
+        if np.any(np.isnan(y_true)) or np.any(np.isnan(y_pred)):
+            return  # Silent return for NaN values
+            
+        # Calculate confusion matrix
         cm = confusion_matrix(y_true, y_pred)
         
+        # Create figure
         plt.figure(figsize=(10, 8))
-        sns.heatmap(cm, annot=True, fmt='d', cmap='Blues',
-                   xticklabels=class_names, yticklabels=class_names)
+        
+        # Create heatmap
+        if class_names and len(class_names) == cm.shape[0]:
+            sns.heatmap(cm, annot=True, fmt='d', cmap='Blues',
+                       xticklabels=class_names, yticklabels=class_names)
+        else:
+            sns.heatmap(cm, annot=True, fmt='d', cmap='Blues')
+        
         plt.title('Confusion Matrix')
         plt.ylabel('True Label')
         plt.xlabel('Predicted Label')
+        plt.tight_layout()
         
+        # Log to WandB
         wandb.log({"confusion_matrix": wandb.Image(plt)})
+        
+        # Close figure to prevent memory leaks
         plt.close()
         
-    except Exception as e:
-        print(f"Error logging confusion matrix: {e}")
+    except ImportError:
+        # Silent return for missing dependencies
+        return
+    except Exception:
+        # Silent return for any other errors to prevent training interruption
+        return
 
 # Export functions
 __all__ = [

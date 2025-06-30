@@ -7,14 +7,27 @@ from pathlib import Path
 from dotenv import load_dotenv
 from typing import Dict, Any, List
 
-# Load environment variables
-load_dotenv()
+# Load environment variables from multiple possible locations
+env_paths = [
+    Path.cwd() / '.env',          # Current directory
+    Path(__file__).parent / '.env',  # Same directory as config.py
+    Path(__file__).parent.parent / '.env',  # Project root
+]
 
-# Project root directory
+for env_path in env_paths:
+    if env_path.exists():
+        load_dotenv(env_path)
+        break
+
+# Project root directory (dynamic detection)
 PROJECT_ROOT = Path(__file__).parent.parent
 DATA_DIR = PROJECT_ROOT / "data"
 MODELS_DIR = PROJECT_ROOT / "models"
 LOGS_DIR = PROJECT_ROOT / "logs"
+
+# Create directories if they don't exist (cross-platform)
+for directory in [DATA_DIR, MODELS_DIR, LOGS_DIR]:
+    directory.mkdir(parents=True, exist_ok=True)
 
 # WandB Configuration
 WANDB_CONFIG = {
@@ -33,10 +46,10 @@ EXPERIMENT_CONFIG = {
     "pretrained": True,
     
     # Training settings
-    "img_size": 224,  # Increased from 32 for better performance
+    "img_size": 224,  # Can be changed to 32 for baseline compatibility
     "batch_size": 32,
     "learning_rate": 1e-3,
-    "epochs": 50,
+    "epochs": 50,  # Can be changed to 1 for baseline compatibility
     "num_workers": 4,
     
     # Optimizer settings
@@ -67,6 +80,31 @@ EXPERIMENT_CONFIG = {
     # Checkpoint settings
     "save_best_only": True,
     "save_frequency": 5,  # Save every N epochs
+}
+
+# Baseline Compatible Configuration (matches official baseline)
+BASELINE_CONFIG = {
+    # Model settings (same as baseline)
+    "model_name": "resnet34",
+    "num_classes": 17,
+    "pretrained": True,
+    
+    # Training settings (matches baseline exactly)
+    "img_size": 32,
+    "batch_size": 32, 
+    "learning_rate": 1e-3,
+    "epochs": 1,
+    "num_workers": 0,
+    
+    # Simplified settings for baseline compatibility
+    "use_validation": False,
+    "use_scheduler": False,
+    "use_early_stopping": False,
+    "save_model": False,
+    
+    # macOS Optimization settings
+    "enable_macos_optimization": True,   # Enable MPS/CUDA optimization
+    "compatibility_mode": False,          # Force original CUDA-only mode
 }
 
 # Data Configuration
@@ -152,6 +190,7 @@ def validate_config() -> bool:
 __all__ = [
     "WANDB_CONFIG",
     "EXPERIMENT_CONFIG", 
+    "BASELINE_CONFIG",  # New baseline config
     "DATA_CONFIG",
     "LOGGING_CONFIG",
     "MODEL_PATHS",
