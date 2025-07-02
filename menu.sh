@@ -102,34 +102,40 @@ show_main_menu() {
     echo -e "${GREEN}${BOLD}🚀 베이스라인 실행${NC}"
     echo -e "${CYAN}  1)${NC} 간단한 베이스라인 테스트 ${YELLOW}(30초, 환경 검증)${NC}"
     echo -e "${CYAN}  2)${NC} 간단한 베이스라인 백그라운드 실행 ${YELLOW}(30초)${NC}"
-    echo -e "${CYAN}  3)${NC} 고급 베이스라인 포그라운드 실행 ${YELLOW}(WandB, 실시간)${NC}"
-    echo -e "${CYAN}  4)${NC} 고급 베이스라인 백그라운드 실행 ${YELLOW}(30분, WandB)${NC}"
+    echo -e "${CYAN}  3)${NC} 고급 베이스라인 포그라운드 실행 ${YELLOW}(이미지/OCR 선택)${NC}"
+    echo -e "${CYAN}  4)${NC} 고급 베이스라인 백그라운드 실행 ${YELLOW}(이미지/OCR 선택)${NC}"
     echo -e "${CYAN}  5)${NC} 고급 베이스라인 DRY RUN ${YELLOW}(환경 검증만)${NC}"
     echo -e "${CYAN}  6)${NC} 베이스라인 메뉴 (상세 옵션) ${YELLOW}(대화형)${NC}"
     echo
+    echo -e "${GREEN}${BOLD}🔤 OCR 전용 메뉴 (고급)${NC}"
+    echo -e "${CYAN}  7)${NC} OCR 환경 설정 ${YELLOW}(EasyOCR/Tesseract 설치)${NC}"
+    echo -e "${CYAN}  8)${NC} OCR 모델 DRY RUN ${YELLOW}(환경 검증 전용)${NC}"
+    echo -e "${CYAN}  9)${NC} OCR 모델 포그라운드 실행 ${YELLOW}(OCR 전용)${NC}"
+    echo -e "${CYAN} 10)${NC} OCR 모델 백그라운드 실행 ${YELLOW}(OCR 전용)${NC}"
+    echo
     echo -e "${GREEN}${BOLD}📊 모니터링 & 관리${NC}"
-    echo -e "${CYAN}  7)${NC} 실행 상태 확인"
-    echo -e "${CYAN}  8)${NC} 실시간 로그 보기"
-    echo -e "${CYAN}  9)${NC} 실시간 모니터링 (그래프)"
-    echo -e "${CYAN} 10)${NC} 실행 중인 프로세스 중지"
+    echo -e "${CYAN} 11)${NC} 실행 상태 확인"
+    echo -e "${CYAN} 12)${NC} 실시간 로그 보기"
+    echo -e "${CYAN} 13)${NC} 실시간 모니터링 (그래프)"
+    echo -e "${CYAN} 14)${NC} 실행 중인 프로세스 중지"
     echo
     echo -e "${GREEN}${BOLD}🔧 환경 & 도구${NC}"
-    echo -e "${CYAN} 11)${NC} 환경 설정 확인"
-    echo -e "${CYAN} 12)${NC} 노트북 → Python 변환"
+    echo -e "${CYAN} 15)${NC} 환경 설정 확인"
+    echo -e "${CYAN} 16)${NC} 노트북 → Python 변환"
     
     # 플랫폼별 메뉴 조정
     if [[ "$PLATFORM" == "macos" ]]; then
-        echo -e "${CYAN} 13)${NC} 고급 실행 메뉴 ${YELLOW}(Screen/Tmux)${NC}"
-        echo -e "${CYAN} 14)${NC} GPU/MPS 디바이스 테스트 ${YELLOW}(성능 확인)${NC}"
+        echo -e "${CYAN} 17)${NC} 고급 실행 메뉴 ${YELLOW}(Screen/Tmux)${NC}"
+        echo -e "${CYAN} 18)${NC} GPU/MPS 디바이스 테스트 ${YELLOW}(성능 확인)${NC}"
     else
-        echo -e "${CYAN} 13)${NC} 고급 실행 메뉴 ${YELLOW}(Screen/Tmux)${NC}"
-        echo -e "${CYAN} 14)${NC} GPU/CUDA 디바이스 테스트 ${YELLOW}(성능 확인)${NC}"
+        echo -e "${CYAN} 17)${NC} 고급 실행 메뉴 ${YELLOW}(Screen/Tmux)${NC}"
+        echo -e "${CYAN} 18)${NC} GPU/CUDA 디바이스 테스트 ${YELLOW}(성능 확인)${NC}"
     fi
     echo
     echo -e "${GREEN}${BOLD}📋 정보${NC}"
-    echo -e "${CYAN} 15)${NC} 프로젝트 상태 요약"
-    echo -e "${CYAN} 16)${NC} 사용 가능한 파일 목록"
-    echo -e "${CYAN} 17)${NC} 도움말 보기"
+    echo -e "${CYAN} 19)${NC} 프로젝트 상태 요약"
+    echo -e "${CYAN} 20)${NC} 사용 가능한 파일 목록"
+    echo -e "${CYAN} 21)${NC} 도움말 보기"
     echo
     echo -e "${RED}${BOLD}  0)${NC} 종료"
     echo
@@ -374,7 +380,7 @@ main() {
         print_header
         show_main_menu
         
-        echo -ne "${BOLD}선택하세요 (0-17): ${NC}"
+        echo -ne "${BOLD}선택하세요 (0-21): ${NC}"
         read -r choice
         echo
         
@@ -390,12 +396,83 @@ main() {
                 echo -e "${GREEN}🚀 고급 베이스라인 포그라운드 실행 중...${NC}"
                 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
                 echo
-                cd "$PROJECT_ROOT/codes" || exit 1
-                $PYTHON_CMD train_with_wandb.py
+                echo -e "${YELLOW}🤔 OCR(광학 문자 인식)을 사용하시겠습니까?${NC}"
+                echo -e "${CYAN}ℹ️  OCR은 문서 이미지에서 텍스트를 추출하여 분류 성능을 향상시킵니다.${NC}"
+                echo -e "${CYAN}  - 이미지만: 빠른 처리, 기존 방식${NC}"
+                echo -e "${CYAN}  - OCR 통합: 텍스트 + 이미지, 더 정확한 분류 기대${NC}"
+                echo
+                echo -ne "${BOLD}OCR을 사용하시겠습니까? [y/N]: ${NC}"
+                read -r use_ocr_choice
+                echo
+                
+                if [[ "$use_ocr_choice" =~ ^[Yy]$ ]]; then
+                    echo -e "${GREEN}🔤 OCR 통합 모델로 실행합니다...${NC}"
+                    echo
+                    # OCR 환경 채크
+                    cd "$PROJECT_ROOT/codes" || exit 1
+                    if $PYTHON_CMD -c "import easyocr" 2>/dev/null || $PYTHON_CMD -c "import pytesseract" 2>/dev/null; then
+                        echo -e "${GREEN}✅ OCR 환경이 설정되어 있습니다.${NC}"
+                        $PYTHON_CMD train_with_ocr.py
+                    else
+                        echo -e "${YELLOW}⚠️  OCR 라이브러리가 설치되지 않았습니다.${NC}"
+                        echo -e "${CYAN}🔧 OCR 환경을 설정하시겠습니까? [Y/n]: ${NC}"
+                        read -r setup_ocr
+                        if [[ "$setup_ocr" =~ ^[Nn]$ ]]; then
+                            echo -e "${BLUE}🚀 이미지 전용 모델로 실행합니다...${NC}"
+                            $PYTHON_CMD train_with_wandb.py
+                        else
+                            echo -e "${GREEN}🔧 OCR 환경 설정 시작...${NC}"
+                            cd "$PROJECT_ROOT" || exit 1
+                            chmod +x setup_ocr.sh
+                            ./setup_ocr.sh
+                            echo
+                            echo -e "${GREEN}🔤 OCR 설정 완료! OCR 모델 실행 중...${NC}"
+                            cd codes || exit 1
+                            $PYTHON_CMD train_with_ocr.py
+                        fi
+                    fi
+                else
+                    echo -e "${BLUE}🚀 이미지 전용 모델로 실행합니다...${NC}"
+                    cd "$PROJECT_ROOT/codes" || exit 1
+                    $PYTHON_CMD train_with_wandb.py
+                fi
                 wait_for_input
                 ;;
             4)
-                execute_script "$PROJECT_ROOT/scripts/run_training.sh" "고급 베이스라인 백그라운드 실행" "start" "train_with_wandb.py"
+                # 고급 베이스라인 백그라운드 실행
+                echo -e "${GREEN}🚀 고급 베이스라인 백그라운드 실행 시작...${NC}"
+                echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+                echo
+                echo -e "${YELLOW}🤔 백그라운드에서 OCR을 사용하시겠습니까?${NC}"
+                echo -e "${CYAN}ℹ️  OCR은 처리 시간이 더 오래 걸리지만 더 정확한 분류를 기대할 수 있습니다.${NC}"
+                echo
+                echo -ne "${BOLD}OCR을 사용하시겠습니까? [y/N]: ${NC}"
+                read -r use_ocr_bg
+                echo
+                
+                if [[ "$use_ocr_bg" =~ ^[Yy]$ ]]; then
+                    # OCR 환경 채크
+                    cd "$PROJECT_ROOT/codes" || exit 1
+                    if $PYTHON_CMD -c "import easyocr" 2>/dev/null || $PYTHON_CMD -c "import pytesseract" 2>/dev/null; then
+                        echo -e "${GREEN}🔤 OCR 모델 백그라운드 실행 시작...${NC}"
+                        nohup $PYTHON_CMD train_with_ocr.py > "../logs/ocr_training_$(date +%Y%m%d_%H%M%S).log" 2>&1 &
+                        echo $! > "../logs/ocr_training.pid"
+                        echo -e "${GREEN}✅ OCR 모델 백그라운드 실행 시작됨${NC}"
+                        echo -e "${CYAN}📄 로그: logs/ocr_training_$(date +%Y%m%d_%H%M%S).log${NC}"
+                    else
+                        echo -e "${YELLOW}⚠️  OCR 라이브러리가 설치되지 않았습니다.${NC}"
+                        echo -e "${CYAN}🔧 먼저 메뉴 7번으로 OCR 환경을 설정해주세요.${NC}"
+                        echo -e "${BLUE}🚀 이미지 전용 모델로 백그라운드 실행합니다...${NC}"
+                        execute_script "$PROJECT_ROOT/scripts/run_training.sh" "고급 베이스라인 백그라운드 실행" "start" "train_with_wandb.py"
+                        return
+                    fi
+                else
+                    echo -e "${BLUE}🚀 이미지 전용 모델로 백그라운드 실행합니다...${NC}"
+                    execute_script "$PROJECT_ROOT/scripts/run_training.sh" "고급 베이스라인 백그라운드 실행" "start" "train_with_wandb.py"
+                    return
+                fi
+                echo -e "${CYAN}🔍 상태 확인: 메뉴 11번${NC}"
+                wait_for_input
                 ;;
             5)
                 # 고급 베이스라인 DRY RUN (환경 검증)
@@ -412,39 +489,81 @@ main() {
                 execute_script "$PROJECT_ROOT/scripts/run_baseline.sh" "베이스라인 상세 메뉴"
                 ;;
             7)
-                execute_script "$PROJECT_ROOT/scripts/run_training.sh" "실행 상태 확인" "status"
+                # OCR 환경 설정
+                echo -e "${GREEN}🔧 OCR 환경 설정 시작...${NC}"
+                echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+                echo
+                chmod +x "$PROJECT_ROOT/setup_ocr.sh"
+                "$PROJECT_ROOT/setup_ocr.sh"
+                wait_for_input
                 ;;
             8)
-                execute_script "$PROJECT_ROOT/scripts/run_training.sh" "실시간 로그 보기" "follow"
+                # OCR 통합 모델 DRY RUN
+                echo -e "${GREEN}🧪 OCR 통합 모델 DRY RUN (환경 검증)${NC}"
+                echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+                echo
+                cd "$PROJECT_ROOT/codes" || exit 1
+                $PYTHON_CMD train_with_ocr.py --dry-run
+                echo
+                echo -e "${YELLOW}💡 DRY RUN이 성공했다면, 메뉴 9번으로 포그라운드 실행하세요.${NC}"
+                wait_for_input
                 ;;
             9)
-                execute_script "$PYTHON_CMD" "실시간 모니터링" "$PROJECT_ROOT/scripts/monitor.py" "monitor"
+                # OCR 통합 모델 포그라운드 실행
+                echo -e "${GREEN}🔤 OCR 통합 모델 포그라운드 실행 중...${NC}"
+                echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+                echo
+                cd "$PROJECT_ROOT/codes" || exit 1
+                $PYTHON_CMD train_with_ocr.py
+                wait_for_input
                 ;;
             10)
-                execute_script "$PROJECT_ROOT/scripts/run_training.sh" "프로세스 중지" "stop"
+                # OCR 통합 모델 백그라운드 실행
+                echo -e "${GREEN}🚀 OCR 통합 모델 백그라운드 실행 시작...${NC}"
+                echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+                echo
+                cd "$PROJECT_ROOT/codes" || exit 1
+                nohup $PYTHON_CMD train_with_ocr.py > "../logs/ocr_training_$(date +%Y%m%d_%H%M%S).log" 2>&1 &
+                echo $! > "../logs/ocr_training.pid"
+                echo -e "${GREEN}✅ OCR 통합 모델 백그라운드 실행 시작됨${NC}"
+                echo -e "${CYAN}📄 로그: logs/ocr_training_$(date +%Y%m%d_%H%M%S).log${NC}"
+                echo -e "${CYAN}🔍 상태 확인: 메뉴 11번${NC}"
+                wait_for_input
                 ;;
             11)
-                execute_script "$PROJECT_ROOT/scripts/run_training.sh" "환경 설정 확인" "check"
+                execute_script "$PROJECT_ROOT/scripts/run_training.sh" "실행 상태 확인" "status"
                 ;;
             12)
-                execute_script "$PROJECT_ROOT/scripts/convert_notebook.sh" "노트북 → Python 변환"
+                execute_script "$PROJECT_ROOT/scripts/run_training.sh" "실시간 로그 보기" "follow"
                 ;;
             13)
-                execute_script "$PROJECT_ROOT/scripts/advanced_launcher.sh" "고급 실행 메뉴"
+                execute_script "$PYTHON_CMD" "실시간 모니터링" "$PROJECT_ROOT/scripts/monitor.py" "monitor"
                 ;;
             14)
+                execute_script "$PROJECT_ROOT/scripts/run_training.sh" "프로세스 중지" "stop"
+                ;;
+            15)
+                execute_script "$PROJECT_ROOT/scripts/run_training.sh" "환경 설정 확인" "check"
+                ;;
+            16)
+                execute_script "$PROJECT_ROOT/scripts/convert_notebook.sh" "노트북 → Python 변환"
+                ;;
+            17)
+                execute_script "$PROJECT_ROOT/scripts/advanced_launcher.sh" "고급 실행 메뉴"
+                ;;
+            18)
                 cd "$PROJECT_ROOT/codes" && $PYTHON_CMD -c "from device_utils import test_device; test_device()"
                 wait_for_input
                 ;;
-            15)
+            19)
                 show_project_status
                 wait_for_input
                 ;;
-            16)
+            20)
                 show_available_files
                 wait_for_input
                 ;;
-            17)
+            21)
                 show_help
                 wait_for_input
                 ;;
@@ -454,7 +573,7 @@ main() {
                 exit 0
                 ;;
             *)
-                echo -e "${RED}❌ 잘못된 선택입니다. 0-17 범위의 숫자를 입력해주세요.${NC}"
+                echo -e "${RED}❌ 잘못된 선택입니다. 0-21 범위의 숫자를 입력해주세요.${NC}"
                 wait_for_input
                 ;;
         esac

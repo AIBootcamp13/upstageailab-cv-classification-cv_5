@@ -306,3 +306,9 @@ $RECYCLE.BIN/
 models/*.pth
 models/*.pt
 models/*.onnx
+
+# OCR 캐시 파일들 (플랫폼별로 다를 수 있음)
+data/ocr_cache/
+
+# 플랫폼별 실행 파일
+run_ubuntu.sh
