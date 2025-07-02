@@ -386,21 +386,19 @@ def train_model():
         )
         val_dataset.df = val_subset
         
-        # Create data loaders with optimized settings
+        # 데이터 로더 생성 시 디바이스 타입에 따른 최적화 설정 사용
         train_loader = DataLoader(
             train_dataset,
             batch_size=EXPERIMENT_CONFIG['batch_size'],
             shuffle=True,
-            num_workers=dataloader_config['num_workers'],
-            pin_memory=dataloader_config['pin_memory']
+            **dataloader_config  # pin_memory와 num_workers 설정 사용
         )
         
         val_loader = DataLoader(
             val_dataset,
             batch_size=EXPERIMENT_CONFIG['batch_size'],
             shuffle=False,
-            num_workers=dataloader_config['num_workers'],
-            pin_memory=dataloader_config['pin_memory']
+            **dataloader_config  # pin_memory와 num_workers 설정 사용
         )
         
         print(f"Train samples: {len(train_dataset)}")
@@ -524,8 +522,7 @@ def train_model():
             test_dataset,
             batch_size=EXPERIMENT_CONFIG['batch_size'],
             shuffle=False,
-            num_workers=dataloader_config['num_workers'],
-            pin_memory=dataloader_config['pin_memory']
+            **dataloader_config  # pin_memory와 num_workers 설정 사용
         )
         
         # Generate predictions on test data
